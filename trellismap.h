@@ -67,8 +67,8 @@ protected:
 	byte sizeX;
 	byte sizeY;
 
-	byte offsetX;
-	byte offsetY;
+	char offsetX;
+	char offsetY;
 
 	byte maxOffsetX;
 	byte maxOffsetY;
@@ -78,6 +78,9 @@ protected:
 	byte trellisSizeY;
 
 	bool *keys, *lastKeys, *leds, *visible;
+
+	int _trellisDelay;
+	long _prevMillis;
 
 };
 

@@ -89,6 +89,9 @@ bool TrellisMap::begin(Adafruit_Trellis* _mat, byte _xMapSize = 4, byte _yMapSiz
 
 	_updateVisible();
 
+	_trellisDelay = 15;
+	_prevMillis = millis();
+
 	return true;
 }
 
@@ -131,7 +134,12 @@ void TrellisMap::setOffsetX(char _offset){
 		offsetX = maxOffsetX;
 	}
 
+	Serial.print("setOffsetX");
+	Serial.println((int)offsetX);
+
 	_updateVisible();
+	_updateMap();
+	writeDisplay();
 }
 
 //Get the current offset / origin
@@ -151,6 +159,8 @@ void TrellisMap::setOffsetY(char _offset){
 	}
 
 	_updateVisible();
+	_updateMap();
+	writeDisplay();
 }
 
 //Get the current offset / origin
@@ -161,6 +171,12 @@ char TrellisMap::getOffsetY(){
 //Get a reading from trellis.
 //If a switch has changed, copy all the switches from it to the map table, with the right offsets.
 bool TrellisMap::readSwitches(){
+	//Todo: add a deboucne to Adafruit_Trellis library
+	while((millis() - _prevMillis) < _trellisDelay){
+		Serial.println("délai");
+	}
+	_prevMillis = millis();
+
 	bool update = matrice->readSwitches();
 	if(update){
 		memcpy(lastKeys, keys, size);
@@ -252,9 +268,9 @@ void TrellisMap::_updateMap(){
 	for(int i = 0; i < size; i++){
 		if(visible[i]){
 			if(leds[i]){
-				setLed(i);
+				setLED(i);
 			} else {
-				clrLed(i);
+				clrLED(i);
 			}
 		}
 	}
