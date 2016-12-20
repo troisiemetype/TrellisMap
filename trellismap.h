@@ -38,12 +38,22 @@ public:
 	void setOffsetY(char _offset);
 	char getOffsetY();
 
+	int getSize();
+	int getSizeX();
+	int getSizeY();
+
 	bool readSwitches();
 	bool isKeyPressed(byte _key);
 	bool wasKeyPressed(byte _key);
 
 	bool justPressed(byte _key);
 	bool justReleased(byte _key);
+
+	bool isTKeyPressed(byte _key);
+	bool wasTKeyPressed(byte _key);
+
+	bool justTPressed(byte _key);
+	bool justTReleased(byte _key);
 
 	void writeDisplay();
 	void clear();
@@ -55,6 +65,9 @@ public:
 
 protected:
 
+	byte _mapToTrellis(byte _key);
+	byte _trellisToMap(byte _key);
+	
 	void _updateVisible();
 	void _updateMap();
 

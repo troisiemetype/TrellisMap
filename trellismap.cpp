@@ -45,8 +45,6 @@ TrellisMap::~TrellisMap(){
 	delete [] lastKeys;
 	delete [] leds;
 	delete [] visible;
-
-	delete matrice;
 //	delete matrices;
 }
 
@@ -61,6 +59,8 @@ bool TrellisMap::begin(Adafruit_Trellis* _mat, byte _xMapSize = 4, byte _yMapSiz
 
 	trellisSizeX = 4;
 	trellisSizeY = 4;
+
+	trellisSize = trellisSizeX * trellisSizeY;
 
 	maxOffsetX = sizeX - trellisSizeX;
 	maxOffsetY = sizeY - trellisSizeX;
@@ -89,7 +89,7 @@ bool TrellisMap::begin(Adafruit_Trellis* _mat, byte _xMapSize = 4, byte _yMapSiz
 
 	_updateVisible();
 
-	_trellisDelay = 15;
+	_trellisDelay = 20;
 	_prevMillis = millis();
 
 	return true;
@@ -134,9 +134,6 @@ void TrellisMap::setOffsetX(char _offset){
 		offsetX = maxOffsetX;
 	}
 
-	Serial.print("setOffsetX");
-	Serial.println((int)offsetX);
-
 	_updateVisible();
 	_updateMap();
 	writeDisplay();
@@ -168,24 +165,36 @@ char TrellisMap::getOffsetY(){
 	return offsetY;
 }
 
+//Get the size of the pannel
+int TrellisMap::getSize(){
+	return size;
+}
+
+int TrellisMap::getSizeX(){
+	return sizeX;
+}
+
+int TrellisMap::getSizeY(){
+	return sizeY;
+}
+
 //Get a reading from trellis.
 //If a switch has changed, copy all the switches from it to the map table, with the right offsets.
 bool TrellisMap::readSwitches(){
-	//Todo: add a deboucne to Adafruit_Trellis library
-	while((millis() - _prevMillis) < _trellisDelay){
-		Serial.println("délai");
-	}
-	_prevMillis = millis();
+	//Trellis needs at least a 20ms delay between two readings of its switches.
+	//This is a kind of debounce. So if this delay has not been passed since last reading, return false immediately.
+	//TODO: A real debounce would be nice, here or directly in the Adafruit_Trellis library.
+	if((millis() - _prevMillis) < _trellisDelay) return false;
 
 	bool update = matrice->readSwitches();
+
+	_prevMillis = millis();
+
 	if(update){
 		memcpy(lastKeys, keys, size);
-		for (int j = 0; j < trellisSizeY; j++){
-		int posY = (offsetY + j) * sizeX;
-
-			for (int i = 0; i < trellisSizeX; i++){
-				keys[posY + offsetX + i] = matrice->isKeyPressed(i + j * trellisSizeX);
-			}
+		
+		for(int i = 0; i < trellisSize; i++){
+			keys[_trellisToMap(i)] = matrice->isKeyPressed(i);
 		}
 	}
 	return update;
@@ -213,6 +222,27 @@ bool TrellisMap::justReleased(byte _key){
 	return (!isKeyPressed(_key) && wasKeyPressed(_key));
 }
 
+//These four methods do the same as above, but for a key on trellis directly, not mapped.
+bool TrellisMap::isTKeyPressed(byte _key){
+	if(_key > trellisSize) return false;
+	return keys[_trellisToMap(_key)];
+}
+
+bool TrellisMap::wasTKeyPressed(byte _key){
+	if(_key > trellisSize) return false;
+	return lastKeys[_trellisToMap(_key)];
+}
+
+bool TrellisMap::justTPressed(byte _key){
+	if(_key > trellisSize) return false;
+	return (isTKeyPressed(_key) && !wasTKeyPressed(_key));
+}
+
+bool TrellisMap::justTReleased(byte _key){
+	if(_key > trellisSize) return false;
+	return (!isTKeyPressed(_key) && wasTKeyPressed(_key));
+}
+
 //Update the display
 void TrellisMap::writeDisplay(){
 	matrice->writeDisplay();
@@ -233,10 +263,7 @@ bool TrellisMap::isLED(byte _led){
 void TrellisMap::setLED(byte _led){
 	leds[_led] = true;
 	if(visible[_led]){
-		int posX = _led%sizeX - offsetX;
-		int posY = _led/sizeX - offsetY;
-
-		matrice->setLED(posX + posY * trellisSizeX);
+		matrice->setLED(_mapToTrellis(_led));
 	}
 }
 
@@ -244,22 +271,16 @@ void TrellisMap::setLED(byte _led){
 void TrellisMap::clrLED(byte _led){
 	leds[_led] = false;
 	if(visible[_led]){
-		int posX = _led%sizeX - offsetX;
-		int posY = _led/sizeX - offsetY;
-
-		matrice->clrLED(posX + posY * trellisSizeX);
+		matrice->clrLED(_mapToTrellis(_led));
 	}
 }
 
 //Update the visible table, that stores which led appears on trellis or not.
 void TrellisMap::_updateVisible(){
 	memset(visible, false, size);
-	for (int j = 0; j < trellisSizeY; j++){
-		int posY = (offsetY + j) * sizeX;
 
-		for (int i = 0; i < trellisSizeX; i++){
-			visible[posY + offsetX + i] = true;
-		}
+	for(int i = 0; i < trellisSize; i++){
+			visible[_trellisToMap(i)] = true;
 	}
 }
 
@@ -274,4 +295,18 @@ void TrellisMap::_updateMap(){
 			}
 		}
 	}
+}
+
+//Get the position on trellis, given the position on map.
+byte TrellisMap::_mapToTrellis(byte _key){
+	int posX = _key%sizeX - offsetX;
+	int posY = _key/sizeX - offsetY;
+	return posX + posY * trellisSizeX;
+}
+
+//Get the position on map, given the position on trellis.
+byte TrellisMap::_trellisToMap(byte _key){
+	int posX = _key%trellisSizeX;
+	int posY = _key/trellisSizeX;
+	return (offsetX + posX + ((offsetY + posY) * sizeX));
 }
