@@ -29,13 +29,13 @@ public:
 	TrellisMap();
 	~TrellisMap();
 
-	bool begin(Adafruit_Trellis* _mat, byte _xMapSize, byte _yMapSize);
+	bool begin(Adafruit_Trellis* mat, byte xMapSize, byte yMapSize);
 //	bool begin(Adafruit_TrellisSet* _mat, byte _xMapSize, byte _yMapSize, byte _xTrellisSize, byte _yTrellisSize);
 
-	void setOffsetX(char _offset);
+	void setOffsetX(char offset);
 	char getOffsetX();
 
-	void setOffsetY(char _offset);
+	void setOffsetY(char offset);
 	char getOffsetY();
 
 	int getSize();
@@ -43,54 +43,54 @@ public:
 	int getSizeY();
 
 	bool readSwitches();
-	bool isKeyPressed(byte _key);
-	bool wasKeyPressed(byte _key);
+	bool isKeyPressed(byte key);
+	bool wasKeyPressed(byte key);
 
-	bool justPressed(byte _key);
-	bool justReleased(byte _key);
+	bool justPressed(byte key);
+	bool justReleased(byte key);
 
-	bool isTKeyPressed(byte _key);
-	bool wasTKeyPressed(byte _key);
+	bool isTKeyPressed(byte key);
+	bool wasTKeyPressed(byte key);
 
-	bool justTPressed(byte _key);
-	bool justTReleased(byte _key);
+	bool justTPressed(byte key);
+	bool justTReleased(byte key);
 
 	void writeDisplay();
 	void clear();
 
-	bool isLED(byte _led);
-	void setLED(byte _led);
-	void clrLED(byte _led);
+	bool isLED(byte led);
+	void setLED(byte led);
+	void clrLED(byte led);
 
 
 protected:
 
-	byte _mapToTrellis(byte _key);
-	byte _trellisToMap(byte _key);
+	byte _mapToTrellis(byte key);
+	byte _trellisToMap(byte key);
 	
 	void _updateVisible();
 	void _updateMap();
 
-	bool set;
+	bool _set;
 
-	Adafruit_Trellis *matrice;
+	Adafruit_Trellis *_matrice;
 //	Adafruit_TrellisSet *matrices;
 
-	int size;
-	byte sizeX;
-	byte sizeY;
+	int _size;
+	byte _sizeX;
+	byte _sizeY;
 
-	char offsetX;
-	char offsetY;
+	char _offsetX;
+	char _offsetY;
 
-	byte maxOffsetX;
-	byte maxOffsetY;
+	byte _maxOffsetX;
+	byte _maxOffsetY;
 
-	int trellisSize;
-	byte trellisSizeX;
-	byte trellisSizeY;
+	int _trellisSize;
+	byte _trellisSizeX;
+	byte _trellisSizeY;
 
-	bool *keys, *lastKeys, *leds, *visible;
+	bool *_keys, *_lastKeys, *_leds, *_visible;
 
 	int _trellisDelay;
 	long _prevMillis;
