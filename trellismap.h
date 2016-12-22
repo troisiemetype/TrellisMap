@@ -22,6 +22,20 @@
 #include <Arduino.h>
 #include <Adafruit_Trellis.h>
 
+#define TRELLIS_U 			13
+#define TRELLIS_D 			14
+#define TRELLIS_R 			15
+#define TRELLIS_L 			12
+
+#define TRELLIS_U1			1
+#define TRELLIS_U2			2
+#define TRELLIS_R1			7
+#define TRELLIS_R2			11
+#define TRELLIS_D1          13
+#define TRELLIS_D2          14
+#define TRELLIS_L1			4
+#define TRELLIS_L2			8
+
 class TrellisMap{
 
 public:
@@ -61,6 +75,10 @@ public:
 	bool isLED(byte led);
 	void setLED(byte led);
 	void clrLED(byte led);
+
+	bool isTLED(byte led);
+	void setTLED(byte led);
+	void clrTLED(byte led);
 
 
 protected:

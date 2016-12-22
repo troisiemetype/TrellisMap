@@ -67,6 +67,9 @@ bool TrellisMap::begin(Adafruit_Trellis* mat, byte xMapSize = 4, byte yMapSize =
 	_maxOffsetX = _sizeX - _trellisSizeX;
 	_maxOffsetY = _sizeY - _trellisSizeX;
 
+	_offsetX = 0;
+	_offsetY = 0;
+
 	_matrice = mat;
 
 
@@ -274,6 +277,21 @@ void TrellisMap::clrLED(byte _led){
 	if(_visible[_led]){
 		_matrice->clrLED(_mapToTrellis(_led));
 	}
+}
+
+//Get the led state.
+bool TrellisMap::isTLED(byte led){
+	return _matrice->isLED(led);
+}
+
+//Set a led of the map. Send to trellis if "visible".
+void TrellisMap::setTLED(byte led){
+	_matrice->setLED(led);
+}
+
+//Unset a led of the map. Send to trellis if "visible".
+void TrellisMap::clrTLED(byte led){
+	_matrice->clrLED(led);
 }
 
 //Update the visible table, that stores which led appears on trellis or not.
